@@ -29,7 +29,7 @@ file
 du
 find
 ```
-##Connecting to My Own PC
+## Connecting to My Own PC
 
 - Used Termux to connect to my Linux machine
 ```bash
@@ -39,26 +39,26 @@ ssh id43@192.168.x.x
 ```
 - Successfully accessed my system remotely from mobile
 
-##Challenges
+## Challenges
 
 - Understanding how SSH works across devices
 - Initial confusion about IP addresses and ports
 - Needed both devices on the same network
 
-##What I Learned
+## What I Learned
 
 - SSH can be used from any device (including mobile)
 - Remote login attempts are logged in /var/log/auth.log
 - Practicing with Bandit improves real Linux skills
 - Termux can act like a full Linux terminal
 
-##Importance to Project
+## Importance to Project
 
 - Helps simulate real-world login attempts
 - Generates useful log data for SentinelX
 - Strengthens understanding of attack patterns
 
-##Next Step
+## Next Step
 
 - Generate failed login attempts
 - Analyze logs for suspicious activity
