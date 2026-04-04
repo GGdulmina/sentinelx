@@ -5,6 +5,9 @@
 - Installed and explored Termux on Android
 - Learned basic Linux commands inside Termux
 - Practiced SSH using OverTheWire Bandit wargame
+```bash
+https://overthewire.org/wargames/
+```
 - Established SSH connection from mobile to my PC
 
 ---
