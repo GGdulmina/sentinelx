@@ -4,7 +4,7 @@
 
 - Restructured the SentinelX project into a modular format:
 
-```text
+```bash
 sentinelx/
 ├── core/
 │   ├── __init__.py
@@ -13,14 +13,15 @@ sentinelx/
 │   └── alerts.py
 ├── .gitignore
 ├── requirements.txt
-└── run.py```
+└── run.py
+```
 
 - Created core modules for better separation of logic:
 	- watcher.py → will handle real-time log monitoring
 	- parser.py → will extract useful data (e.g., IP addresses)
 	- alerts.py → will handle detection and warnings
 - Planned project flow using a flowchart
-![Flowchart](docs/day5-6_flowchat.png)
+![Flowchart](journal/docs/day5-6_flowchat.png)
 
 # Architecture Understanding
 - Separated responsibilities into different modules
@@ -43,6 +44,7 @@ sentinelx/
             ^
           cursor # how f.seek() works
 ```
+
 - Real-time behavior comes from:
 	- while True: → keeps checking forever
 	- f.readline() → reads new data as it appears
