@@ -21,7 +21,7 @@ sentinelx/
 	- parser.py → will extract useful data (e.g., IP addresses)
 	- alerts.py → will handle detection and warnings
 - Planned project flow using a flowchart
-![Flowchart](journal/docs/day5-6_flowchat.png)
+![Flowchart](docs/day5-6_flowchat.png)
 
 # Architecture Understanding
 - Separated responsibilities into different modules
