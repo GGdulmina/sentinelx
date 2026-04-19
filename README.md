@@ -1,49 +1,38 @@
-# SentinelX 🔐
+# SentinelX 🔐 (Light-weight Security Information and Event Management tool)
 
 ![Project Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
 ![Language](https://img.shields.io/badge/Language-Python-blue)
 ![Platform](https://img.shields.io/badge/Platform-Linux-orange)
 
-SentinelX is a Linux-based authentication log monitoring tool designed to help users understand failed login attempts and potential unauthorized access. It is part of a hands-on learning journey in cybersecurity and Python programming.
+SentinelX is a lightweight security monitoring tool designed to analyze Linux authentication logs and detect suspicious login activity in real time.
+
+The goal of this project is to explore how system-level data can be used to identify potential threats such as brute-force attacks and unauthorized access attempts.
 
 ---
 
-## Overview
+## Concept
 
-SentinelX reads Linux authentication logs (e.g., `/var/log/auth.log`) and identifies failed login attempts, providing alerts for potential suspicious activity. The project is focused on **learning and documenting the process of building a small security monitoring tool** while practicing:
+Modern systems generate large amounts of log data, but interpreting that data in real time is difficult without proper tools.
 
-- Linux system fundamentals
-- Python scripting and log parsing
-- SSH setup and remote access
-- Version control with Git and GitHub
+SentinelX aims to solve this by:
+
+- Monitoring authentication logs (`/var/log/auth.log`)
+- Detecting failed login attempts
+- Identifying repeated access patterns from the same IP
+- Providing simple alerts for suspicious behavior
 
 ---
 
-## Learning Objectives
+## Current Capabilities
 
-This project helps you learn:
-
-- How Linux authentication and system logs work
-- Basics of SSH and secure remote access
-- Parsing logs with Python (`re` module, collections)
-- Detecting patterns of failed logins (for awareness or simulation of brute-force attacks)
-- Proper use of Git and GitHub for version control and documentation
+- Reads Linux authentication logs
+- Detects failed SSH login attempts
+- Tracks repeated failures per IP
+- Generates basic alerts for potential brute-force activity
 
 ---
 
 ## How to Run
 
-> SentinelX is still in development. The current version reads logs locally.
-
 ```bash
-sudo python3 app.py```
-
-- You will see a report showing the last failed login attempts and a simple alert if suspicious activity is detected.
-
-## Project Status
-
-🚧 In Progress — continuously improving with modular architecture and real-time monitoring in future updates
-
-## Documentation & Learning
-
-- The project includes a journal documenting the step-by-step learning process: ``` /journal```
+sudo python3 app.py
