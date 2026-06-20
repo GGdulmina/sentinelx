@@ -81,7 +81,7 @@ The stateful AlertEngine escalates incidents based on repeated failures from a u
 |   1 Failure       |        INFO        |   Single failed login attempt.                           |
 |   3 Failures      |       WARNING      |   Repeated login failures detected from the same source. |
 |   5+ Failures     |       CRITICAL     |   Potential Brute Force attack signature identified.     |
-|   Success        _|_       INFO       _|_  Immediate notification on successful authentication.  _|
+|_  Success        _|_       INFO       _|_  Immediate notification on successful authentication.  _|
 ```
 
 ## Project Scope & Development Roadmap
