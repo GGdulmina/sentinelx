@@ -77,7 +77,7 @@ sudo python3 run.py /var/log/secure
 
 The stateful AlertEngine escalates incidents based on repeated failures from a unique source IP:
 ```bash
-|_  Failure Count  _|_  Severity Level  _|_  Threat Status Description                             _|
+|_  Failure Count  _|_  Severity Level  _|_              Threat Status Description                 _|
 |   1 Failure       |        INFO        |   Single failed login attempt.                           |
 |   3 Failures      |       WARNING      |   Repeated login failures detected from the same source. |
 |   5+ Failures     |       CRITICAL     |   Potential Brute Force attack signature identified.     |
