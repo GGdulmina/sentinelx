@@ -2,7 +2,15 @@ from core.watcher import follow
 from core.parser  import parse_line
 from core.alerts  import AlertEngine
 
-LOG_FILE = "/var/log/auth.log"
+import os
+import sys
+
+# Default path
+LOG_FILE = "/var/log/auth.log" if os.path.exists("/var/log/auth.log") else "/var/log/secure"
+
+# Allow custom log file via command line argument
+if len(sys.argv) > 1:
+    LOG_FILE = sys.argv[1]
 
 # severity → what symbol to show
 ICONS = {
