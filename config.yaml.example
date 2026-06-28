@@ -1,0 +1,40 @@
+# SentinelX Configuration Example
+
+# List of log files to monitor.
+log_paths:
+  - /var/log/auth.log
+  - /var/log/secure
+
+# Alert thresholds (number of failed login attempts from a single IP to trigger severity levels).
+thresholds:
+  info: 1
+  warning: 3
+  critical: 5
+
+# Reset failure count after this many seconds of inactivity from an IP (default: 86400 = 24 hours).
+reset_after: 86400
+
+# Minimum seconds to wait before sending another alert for the same IP (default: 300 = 5 minutes).
+alert_cooldown: 300
+
+# Path to the state persistence file. Set to null/empty string to disable persistence.
+state_file: sentinelx_state.json
+
+# User and group to drop privileges to when run as root.
+run_as_user: nobody
+run_as_group: nogroup
+
+# Configurable output format settings
+output_format:
+  # The symbol displayed for each alert level
+  icons:
+    info: "[  INFO  ]"
+    warning: "[WARNING ]"
+    critical: "[CRITICAL]"
+  # Column width for log formatting
+  column_widths:
+    ip: 16
+    username: 12
+  # Python strftime format string. Example: "%Y-%m-%d %H:%M:%S"
+  # If left empty, SentinelX uses the original log timestamp.
+  date_format: ""
