@@ -14,11 +14,14 @@ By streaming log data through a concurrent, multi-threaded pipeline, SentinelX p
 
 Detailed guides are available in the `docs/` directory:
 
-1. **[Installation Guide](file:///home/id43/Desktop/GD43/sentinelx/docs/installation.md)**: System prerequisites, environment setup, privileges dropping, and configuring systemd.
-2. **[Configuration Guide](file:///home/id43/Desktop/GD43/sentinelx/docs/configuration.md)**: Configuration schema explanation (`config.yaml`), defaults, and environment variables.
-3. **[Usage Guide](file:///home/id43/Desktop/GD43/sentinelx/docs/usage.md)**: Executing the application, simulating traffic using the mock generator, and reading outputs.
-4. **[Troubleshooting Guide](file:///home/id43/Desktop/GD43/sentinelx/docs/troubleshooting.md)**: Permissions, log rotation recovery, state corruption, and watcher details.
-5. **[Architecture Guide](file:///home/id43/Desktop/GD43/sentinelx/docs/architecture.md)**: Decoupled design overview, Mermaid sequence flow diagram, and components detail.
+1. **[Installation Guide](docs/installation.md)**: System prerequisites, environment setup, privileges dropping, and configuring systemd.
+2. **[Configuration Guide](docs/configuration.md)**: Configuration schema explanation (`config.yaml`), defaults, and environment variables.
+3. **[Usage Guide](docs/usage.md)**: Executing the application, simulating traffic using the mock generator, and reading outputs.
+4. **[Troubleshooting Guide](troubleshooting.md)**: Permissions, log rotation recovery, state corruption, and watcher details.
+5. **[Architecture Guide](docs/architecture.md)**: Decoupled design overview, Mermaid sequence flow diagram, and components detail.
+
+Personal Journal `docs/archive_journal` directory:
+QA tests `docs/QA`:
 
 ---
 
@@ -71,8 +74,8 @@ To test the pipeline end-to-end without needing root privileges:
 
 ## Contributing
 
-Please read the **[Contributing Guidelines](file:///home/id43/Desktop/GD43/sentinelx/CONTRIBUTING.md)** before submitting pull requests.
+Please read the **[Contributing Guidelines](CONTRIBUTING.md)** before submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the **[LICENSE](file:///home/id43/Desktop/GD43/sentinelx/LICENSE)** file for details.
+This project is licensed under the MIT Licence - see the **[LICENSE](LICENSE)** file for details.
