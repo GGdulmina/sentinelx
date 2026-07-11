@@ -1,7 +1,7 @@
 """SentinelX Management API and Background Daemon orchestrator.
 
-Spawns the background authentication monitoring daemon thread and hosts
-the management REST API / WebSocket real-time telemetry stream.
+Handles configuration ingestion, dynamic OS log detection, secure root privilege
+dropping, and real-time WebSocket event dispatching.
 """
 
 import os
@@ -12,9 +12,11 @@ import logging
 from flask import Flask, jsonify
 from flask_socketio import SocketIO
 
-# Resolve path injection dependencies
+# Add directory path to search context
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from config import load_config
+from privileges import drop_privileges
 from core.watcher import follow
 from core.parser import parse_line
 from core.alerts import AlertEngine
@@ -27,16 +29,35 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sentinelx.runtime")
 
-# Initialize Web Engine Application Components
+# 1. Ingest layered configuration parameters
+cfg = load_config()
+
+# 2. Dynamic OS Log Path Selector
+def resolve_active_log_path(configured_paths: list) -> str:
+    """Scan the local system to match and bind the first valid host OS log track."""
+    # First, prioritize a direct environment override if explicitly provided
+    env_override = os.environ.get("SENTINELX_LOG_PATH")
+    if env_override:
+        return env_override
+
+    # Iterate through configuration options (Fedora secure, Mint auth.log, etc.)
+    for path in configured_paths:
+        if os.path.exists(path):
+            logger.info(f"OS Detection Success: Found active security log file at {path}")
+            return path
+            
+    # Safe fallback if running inside user workspace test suites
+    fallback_path = "core/tests/fixtures/auth_small.log"
+    logger.warning(f"No production system logs found. Falling back to dev sandbox: {fallback_path}")
+    return fallback_path
+
+TARGET_LOG_PATH = resolve_active_log_path(cfg['log_paths'])
+
+# Initialize Web Engine Components
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'sentinelx-core-secure-key')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Target system log trail configuration
-TARGET_LOG_PATH = os.environ.get("SENTINELX_LOG_PATH", "core/tests/fixtures/auth_small.log")
-STATE_FILE_PATH = os.environ.get("SENTINELX_STATE_PATH", "sentinelx_state.json")
-
-# Core engine tracking structures
 SYSTEM_STATS = {
     "status": "active",
     "lines_parsed": 0,
@@ -44,7 +65,6 @@ SYSTEM_STATS = {
     "target_file": TARGET_LOG_PATH
 }
 
-# Thread coordination flags
 shutdown_event = threading.Event()
 
 
@@ -52,29 +72,23 @@ def background_daemon_worker(log_path: str, state_path: str) -> None:
     """Run real-time authentication monitoring inside an isolated background thread."""
     logger.info(f"Background daemon tracking target log vector: {log_path}")
     
-    # Instantiate isolated alert threshold analyzer
+    # Instantiate alert engine using state configuration path
     engine = AlertEngine(state_path=state_path)
     
     try:
-        # Stream live log append transitions via follow generator
         for raw_line in follow(log_path):
             if shutdown_event.is_set():
                 break
                 
             SYSTEM_STATS["lines_parsed"] += 1
-            
-            # Pipe to regex structural tokenizer
             parsed_data = parse_line(raw_line)
             if not parsed_data:
                 continue
                 
-            # Process malicious threat metrics
             alert_payload = engine.process_event(parsed_data)
             if alert_payload:
                 SYSTEM_STATS["alerts_dispatched"] += 1
                 logger.warning(f"SECURITY ESCALATION: [{alert_payload['severity']}] {alert_payload['message']}")
-                
-                # Emit non-blocking event stream packet out to all live dashboard sockets
                 socketio.emit('security_alert', alert_payload)
                 
     except Exception as e:
@@ -107,14 +121,17 @@ if __name__ == "__main__":
     # Spawn background monitoring thread
     worker_thread = threading.Thread(
         target=background_daemon_worker,
-        args=(TARGET_LOG_PATH, STATE_FILE_PATH),
+        args=(TARGET_LOG_PATH, cfg['state_file']),
         name="DaemonWorker",
         daemon=True
     )
     worker_thread.start()
     
+    # 3. Securely Drop Privileges right after starting the background file link
+    # This keeps our master log-read pipeline safe but drops Flask to safe permissions
+    drop_privileges(username=cfg['run_as_user'], group=cfg['run_as_group'])
+    
     try:
-        # Run Flask development application engine
         socketio.run(app, host="127.0.0.1", port=5000, debug=False, use_reloader=False)
     except KeyboardInterrupt:
         logger.info("Termination signal captured. Executing graceful system shutdown...")
