@@ -1,25 +1,22 @@
 #!/usr/bin/env bash
 
-# SentinelX Management Script
-
+# SentinelX Production Management Orchestrator Helper Script
 set -e
 
-# Base directory of the script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_PYTHON="$DIR/venv/bin/python"
 VENV_PYTEST="$DIR/venv/bin/pytest"
 
 function print_help() {
-    echo "SentinelX Management Helper Script"
+    echo "SentinelX Management Helper Utilities"
     echo "Usage: ./manage.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  run        - Run SentinelX with default configurations"
-    echo "  test       - Run all unit and integration tests"
-    echo "  mock-logs  - Run the mock log generator to simulate traffic"
-    echo "  lint       - Run syntax verification on code files"
-    echo "  clean      - Clean up temporary files, state, and caches"
-    echo "  help       - Print this help message"
+    echo "  run        - Boot SentinelX system daemon and api layers"
+    echo "  test       - Execute complete pytest validation suite matrices"
+    echo "  mock-logs  - Run background log injection attacker cycles"
+    echo "  lint       - Run fast structural syntax verification tracks"
+    echo "  clean      - Flush out state dumps, temp runtime traces, and caches"
 }
 
 case "$1" in
@@ -27,21 +24,20 @@ case "$1" in
         "$VENV_PYTHON" "$DIR/run.py" "${@:2}"
         ;;
     test)
-        PYTHONPATH="$DIR" "$VENV_PYTEST" "${@:2}"
+        PYTHONPATH="$DIR" "$VENV_PYTEST" "$DIR/core/tests/" "${@:2}"
         ;;
     mock-logs)
         "$VENV_PYTHON" "$DIR/generate_mock_logs.py" "${@:2}"
         ;;
     lint)
-        "$VENV_PYTHON" -m py_compile "$DIR/run.py" "$DIR/config.py" "$DIR/core/"*.py "$DIR/tests/"*.py
-        echo "Syntax verification passed."
+        "$VENV_PYTHON" -m py_compile "$DIR/run.py" "$DIR/core/"*.py "$DIR/core/tests/"**/*.py
+        echo "Syntax validation pass successful."
         ;;
     clean)
         rm -rf "$DIR/.pytest_cache"
-        rm -rf "$DIR/__pycache__" "$DIR/core/__pycache__" "$DIR/tests/__pycache__"
+        rm -rf "$DIR/"**/__pycache__
         rm -f "$DIR/sentinelx_state.json" "$DIR/sentinelx_state.json.tmp"
-        rm -f "$DIR/mock_auth.log"
-        echo "Clean completed."
+        echo "Pruning phase finished cleanly."
         ;;
     help|*)
         print_help
