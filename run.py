@@ -4,12 +4,19 @@ Handles configuration ingestion, dynamic OS log detection, secure root privilege
 dropping, and real-time WebSocket event dispatching.
 """
 
+# CRITICAL FIX: Eventlet requires patching BEFORE any other imports occur
+try:
+    import eventlet
+    eventlet.monkey_patch()
+except ImportError:
+    pass
+
 import os
 import sys
 import threading
 import time
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO
 
 # Force absolute path registration to survive sudo environment changes
@@ -42,18 +49,15 @@ cfg = load_config()
 # 2. Dynamic OS Log Path Selector
 def resolve_active_log_path(configured_paths: list) -> str:
     """Scan the local system to match and bind the first valid host OS log track."""
-    # First, prioritize a direct environment override if explicitly provided
     env_override = os.environ.get("SENTINELX_LOG_PATH")
     if env_override:
         return env_override
 
-    # Iterate through configuration options (Fedora secure, Mint auth.log, etc.)
     for path in configured_paths:
         if os.path.exists(path):
             logger.info(f"OS Detection Success: Found active security log file at {path}")
             return path
             
-    # Safe fallback if running inside user workspace test suites
     fallback_path = "core/tests/fixtures/auth_small.log"
     logger.warning(f"No production system logs found. Falling back to dev sandbox: {fallback_path}")
     return fallback_path
@@ -79,7 +83,6 @@ def background_daemon_worker(log_path: str, state_path: str) -> None:
     """Run real-time authentication monitoring inside an isolated background thread."""
     logger.info(f"Background daemon tracking target log vector: {log_path}")
     
-    # Instantiate alert engine using state configuration path
     engine = AlertEngine(state_path=state_path)
     
     try:
@@ -100,6 +103,16 @@ def background_daemon_worker(log_path: str, state_path: str) -> None:
                 
     except Exception as e:
         logger.error(f"Uncaught exception inside background execution track: {e}")
+
+
+# =========================================================================
+# Interface Render Layer
+# =========================================================================
+
+@app.route("/", methods=["GET"])
+def render_dashboard():
+    """Serve the real-time retro security control command dashboard UI."""
+    return render_template("index.html")
 
 
 # =========================================================================
@@ -125,17 +138,14 @@ def get_telemetry_metrics():
 if __name__ == "__main__":
     logger.info("Initializing SentinelX Operational System Fabric...")
     
-    # Spawn background monitoring thread
-    worker_thread = threading.Thread(
+    # Spawn background monitoring thread using socketio background management
+    socketio.start_background_task(
         target=background_daemon_worker,
-        args=(TARGET_LOG_PATH, cfg['state_file']),
-        name="DaemonWorker",
-        daemon=True
+        log_path=TARGET_LOG_PATH,
+        state_path=cfg['state_file']
     )
-    worker_thread.start()
     
-    # 3. Securely Drop Privileges right after starting the background file link
-    # This keeps our master log-read pipeline safe but drops Flask to safe permissions
+    # Securely Drop Privileges right after starting the background file link
     drop_privileges(username=cfg['run_as_user'], group=cfg['run_as_group'])
     
     try:

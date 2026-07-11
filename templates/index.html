@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelX // Terminal Core</title>
+    <style>
+        :root {
+            --bg-color: #0a0f0d;
+            --terminal-green: #33ff33;
+            --warning-amber: #ffb000;
+            --critical-red: #ff3333;
+            --text-muted: #4af626;
+            --panel-border: #1a3a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--terminal-green);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay Grid effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        header {
+            border-bottom: 2px double var(--terminal-green);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .system-banner {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            white-space: pre;
+            margin-bottom: 10px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            border: 1px solid var(--panel-border);
+            background: rgba(5, 15, 5, 0.6);
+            padding: 15px;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .metric-card::before {
+            content: ']';
+            position: absolute;
+            right: 8px; top: 5px;
+            color: #164a16;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #22aa22;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .console-panel {
+            border: 1px solid var(--panel-border);
+            background: rgba(2, 5, 2, 0.9);
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: var(--panel-border);
+            color: var(--terminal-green);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feed-container {
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .log-row {
+            margin-bottom: 8px;
+            border-left: 3px solid #1a5a1a;
+            padding-left: 8px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .severity-info { border-color: var(--terminal-green); color: var(--terminal-green); }
+        .severity-warning { border-color: var(--warning-amber); color: var(--warning-amber); text-shadow: 0 0 3px var(--warning-amber); }
+        .severity-critical { border-color: var(--critical-red); color: var(--critical-red); text-shadow: 0 0 6px var(--critical-red); font-weight: bold; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-5px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+</head>
+<body>
+
+<header>
+    <div class="system-banner">
+███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗  ██╗
+██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝╚██╗██╔╝
+███████╗█████╗  ██╔██╗ ██║   ██║   ██║██╔██╗ ██║█████╗   ╚███╔╝ 
+╚════██║██╔══╝  ██║╚██╗██║   ██║   ██║██║╚██╗██║██╔══╝   ██╔██╗ 
+███████║███████╗██║ ╚████║   ██║   ██║██║ ╚████║███████╗██╔╝ ██╗
+╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ v1.0.0</div>
+    <div>ACTIVE RUNTIME CORE INTERFACE // HOSTED LOCAL ADAPTER</div>
+</header>
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Daemon Pipeline Status</div>
+        <div class="metric-value" id="stat-status" style="color: var(--terminal-green)">CONN...</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Total Log Lines Streamed</div>
+        <div class="metric-value" id="stat-lines">0</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Security Escalations Dispatched</div>
+        <div class="metric-value" id="stat-alerts" style="color: var(--warning-amber)">0</div>
+    </div>
+</div>
+
+<div class="dashboard-layout">
+    <div class="console-panel">
+        <div class="panel-header">> LIVE MONITOR EVENT SECURITY FEED</div>
+        <div class="feed-container" id="feed-log">
+            <div style="color: #1a5a1a;">[SYS] Initializing local WebSocket link socket connection...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bind socket instance targeting the active server host context
+    const socket = io();
+    const feedLog = document.getElementById("feed-log");
+
+    // Fetch snapshot metrics via initial REST call on view mounting
+    function refreshStats() {
+        fetch('/api/v1/stats')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("stat-status").innerText = data.status.toUpperCase();
+                document.getElementById("stat-lines").innerText = data.lines_parsed;
+                document.getElementById("stat-alerts").innerText = data.alerts_dispatched;
+            }).catch(err => {
+                document.getElementById("stat-status").innerText = "OFFLINE";
+                document.getElementById("stat-status").style.color = "var(--critical-red)";
+            });
+    }
+
+    // Connect lifecycle configurations
+    socket.on('connect', () => {
+        const row = document.createElement("div");
+        row.className = "log-row severity-info";
+        row.innerText = `[${new Date().toLocaleTimeString()}] [SYS] Channel established. Telemetry synchronized.`;
+        feedLog.appendChild(row);
+        refreshStats();
+    });
+
+    // Intercept threat push payloads streaming from run.py
+    socket.on('security_alert', (payload) => {
+        const row = document.createElement("div");
+        row.className = `log-row severity-${payload.severity}`;
+        
+        const timestamp = new Date().toLocaleTimeString();
+        row.innerText = `[${timestamp}] [${payload.severity.toUpperCase()}] Source IP: ${payload.ip} -> Attempts: ${payload.count} | Message: ${payload.message}`;
+        
+        feedLog.appendChild(row);
+        feedLog.scrollTop = feedLog.scrollHeight; // Auto-scroll to lowest point
+        
+        // Trigger quick incremental refresh to bump numbers
+        refreshStats();
+    });
+
+    // Run baseline stats load loop every 4 seconds
+    setInterval(refreshStats, 4000);
+    refreshStats();
+</script>
+</body>
+</html>
