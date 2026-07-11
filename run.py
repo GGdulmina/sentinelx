@@ -12,11 +12,18 @@ import logging
 from flask import Flask, jsonify
 from flask_socketio import SocketIO
 
-# Add directory path to search context
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Force absolute path registration to survive sudo environment changes
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+# Check if privileges.py is in root or inside core/
+try:
+    from privileges import drop_privileges
+except ModuleNotFoundError:
+    from core.privileges import drop_privileges
 
 from config import load_config
-from privileges import drop_privileges
 from core.watcher import follow
 from core.parser import parse_line
 from core.alerts import AlertEngine
