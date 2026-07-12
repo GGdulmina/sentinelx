@@ -157,6 +157,8 @@ if __name__ == "__main__":
         log_path=TARGET_LOG_PATH,
         state_path=cfg['state_file']
     )
+
+    time.sleep(0.5)
     
     # Securely Drop Privileges right after starting the background file link
     drop_privileges(username=cfg['run_as_user'], group=cfg['run_as_group'])
