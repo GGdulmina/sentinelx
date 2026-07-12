@@ -18,6 +18,21 @@ the bundled test fixture used in development.
 
 ---
 
+## Technical Documentation
+
+Detailed guides are available in the `docs/` directory:
+
+1. **[Installation Guide](docs/installation.md)**: System prerequisites, environment setup, privileges dropping, and configuring systemd.
+2. **[Configuration Guide](docs/configuration.md)**: Configuration schema explanation (`config.yaml`), defaults, and environment variables.
+3. **[Usage Guide](docs/usage.md)**: Executing the application, simulating traffic using the mock generator, and reading outputs.
+4. **[Troubleshooting Guide](troubleshooting.md)**: Permissions, log rotation recovery, state corruption, and watcher details.
+5. **[Architecture Guide](docs/architecture.md)**: Decoupled design overview, Mermaid sequence flow diagram, and components detail.
+
+Personal Journal `docs/archive_journal` directory:
+QA tests `docs/QA`:
+
+---
+
 ## Quick Start
 
 The fastest way to see SentinelX working is to point it at the bundled
