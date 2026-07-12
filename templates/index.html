@@ -1,226 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SentinelX // Terminal Core</title>
-    <style>
-        :root {
-            --bg-color: #0a0f0d;
-            --terminal-green: #33ff33;
-            --warning-amber: #ffb000;
-            --critical-red: #ff3333;
-            --text-muted: #4af626;
-            --panel-border: #1a3a1a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sentinelX // Watch Command</title>
+<style>
+  :root{
+    --tortoise-ink:      #0B0F12;
+    --tortoise-panel:    #10171C;
+    --tortoise-line:     #1C262B;
+    
+    --dragon-jade:       #2FA98C;
+    --dragon-jade-dim:   #1C5E4E;
+    
+    --phoenix-vermilion: #E1503E;
+    --phoenix-ember:     #8C2F24;
+    
+    --tiger-gold:        #D9AE55;
+    --tiger-bone:        #EDE6D6;
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    --text-primary:      #EDE6D6;
+    --text-muted:        #6E7A78;
+    --font-display: 'IM Fell English', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--terminal-green);
-            font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
-            overflow-x: hidden;
-        }
+  *{ box-sizing:border-box; margin:0; padding:0; }
 
-        /* Scanline Overlay Grid effect */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999;
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
-        }
+  html,body{
+    background: var(--tortoise-ink);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    min-height:100vh;
+  }
 
-        header {
-            border-bottom: 2px double var(--terminal-green);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+  /* perimeter guard frame — the four corners, one per direction/element */
+  body{ padding: 22px; position:relative; }
+  body::before, body::after,
+  .corner-br, .corner-bl{
+    content:""; position:fixed; width:34px; height:34px; z-index:50; pointer-events:none;
+  }
+  body::before{ top:14px; left:14px; border-top:2px solid var(--dragon-jade); border-left:2px solid var(--dragon-jade); }
+  body::after{ top:14px; right:14px; border-top:2px solid var(--tiger-gold); border-right:2px solid var(--tiger-gold); }
+  .corner-bl{ bottom:14px; left:14px; border-bottom:2px solid var(--tortoise-line); border-left:2px solid var(--tortoise-line); }
+  .corner-br{ bottom:14px; right:14px; border-bottom:2px solid var(--phoenix-vermilion); border-right:2px solid var(--phoenix-vermilion); }
 
-        .system-banner {
-            font-size: 0.8rem;
-            line-height: 1.2;
-            white-space: pre;
-            margin-bottom: 10px;
-        }
+  @media (prefers-reduced-motion: no-preference){
+    .pulse{ animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+    .log-row{ animation: rise .25s ease-out; }
+    @keyframes rise{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+  }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
+  a{ color: inherit; }
 
-        .metric-card {
-            border: 1px solid var(--panel-border);
-            background: rgba(5, 15, 5, 0.6);
-            padding: 15px;
-            border-radius: 2px;
-            position: relative;
-        }
+  /* ---------- header ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding: 10px 6px 22px; border-bottom:1px solid var(--tortoise-line);
+    margin-bottom: 26px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:16px; }
+  .seal{ width:46px; height:46px; flex:none; }
+  .brand-text h1{
+    font-family: var(--font-display); font-weight:600; letter-spacing:.06em;
+    font-size:2.2rem; color: var(--tiger-bone); letter-spacing: 0.1em;
+  }
+  .brand-text p{
+    font-size:.88rem; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--text-muted); margin-top:3px; font-weight:bold;
+  }
+  .conn-pill{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid var(--tortoise-line); border-radius:999px;
+    padding:7px 14px; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase;
+    background: rgba(255,255,255,.02);
+  }
+  .conn-dot{ width:8px; height:8px; border-radius:50%; background:var(--text-muted); }
+  .conn-dot.live{ background:var(--dragon-jade); box-shadow:0 0 8px var(--dragon-jade); }
+  .conn-dot.down{ background:var(--phoenix-vermilion); box-shadow:0 0 8px var(--phoenix-vermilion); }
 
-        .metric-card::before {
-            content: ']';
-            position: absolute;
-            right: 8px; top: 5px;
-            color: #164a16;
-        }
+  /* ---------- the four watch posts  ---------- */
+  .watch-posts{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:26px;
+  }
+  @media (max-width:900px){ .watch-posts{ grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .watch-posts{ grid-template-columns:1fr;} }
 
-        .metric-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #22aa22;
-        }
+  .post{
+    position:relative; background: var(--tortoise-panel);
+    border:1px solid var(--tortoise-line); border-top:3px solid var(--post-accent, var(--dragon-jade));
+    padding:16px 18px 14px; border-radius:3px; overflow:hidden;
+  }
+  .post .glyph{
+    position:absolute; right:10px; top:8px; font-size:2.6rem; opacity:.14;
+    font-family: var(--font-display); color: var(--post-accent, var(--dragon-jade)); font-weight: bold;
+  }
+  .post .direction{
+    font-size:0.662rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-muted);
+  }
+  .post .label{
+    font-size:.88rem; letter-spacing:.06em; text-transform:uppercase; color: var(--text-primary);
+    margin-top:6px; opacity:.85;
+  }
+  .post .value{
+    font-family: var(--font-display); font-size:2.6rem; font-weight:600; margin-top:8px;
+    color: var(--post-accent, var(--dragon-jade));
+  }
 
-        .metric-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-top: 5px;
-            text-shadow: 0 0 5px var(--terminal-green);
-        }
+  .post--tortoise{ --post-accent: var(--tiger-bone); }
+  .post--dragon{   --post-accent: var(--dragon-jade); }
+  .post--tiger{    --post-accent: var(--tiger-gold); }
+  .post--phoenix{  --post-accent: var(--phoenix-vermilion); }
 
-        .dashboard-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
+  /* ---------- main console ---------- */
+  .console{
+    background: var(--tortoise-panel); border:1px solid var(--tortoise-line); border-radius:3px;
+    display:flex; flex-direction:column; min-height:420px;
+  }
+  .console-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 18px; border-bottom:1px solid var(--tortoise-line);
+  }
+  .console-head h2{
+    font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color: var(--text-muted);
+    font-weight:600;
+  }
+  .legend{ display:flex; gap:14px; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ width:8px; height:8px; border-radius:2px; display:inline-block; }
 
-        .console-panel {
-            border: 1px solid var(--panel-border);
-            background: rgba(2, 5, 2, 0.9);
-            min-height: 350px;
-            display: flex;
-            flex-direction: column;
-        }
+  .feed{ flex:1; padding:14px 18px; overflow-y:auto; max-height:480px; }
+  .feed::-webkit-scrollbar{ width:8px; }
+  .feed::-webkit-scrollbar-thumb{ background: var(--tortoise-line); border-radius:4px; }
 
-        .panel-header {
-            background: var(--panel-border);
-            color: var(--terminal-green);
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  .log-row{
+    display:grid; grid-template-columns: 84px 92px 1fr; gap:12px; align-items:baseline;
+    padding:7px 10px; border-left:3px solid var(--row-accent, var(--tortoise-line));
+    font-size:.82rem; margin-bottom:4px; border-radius:2px;
+  }
+  .log-row:hover{ background: rgba(255,255,255,.02); }
+  .log-time{ color: var(--text-muted); font-size:.74rem; }
+  .log-tag{ font-weight:700; letter-spacing:.05em; color: var(--row-accent, var(--text-muted)); font-size:.72rem; text-transform:uppercase; }
+  .log-msg{ color: var(--text-primary); }
+  .log-msg b{ color: var(--tiger-bone); font-weight:600; }
 
-        .feed-container {
-            padding: 15px;
-            flex-grow: 1;
-            overflow-y: auto;
-            max-height: 400px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
+  .sev-sys{      --row-accent: var(--tortoise-line); }
+  .sev-info{     --row-accent: var(--dragon-jade); }
+  .sev-warning{  --row-accent: var(--tiger-gold); }
+  .sev-critical{ --row-accent: var(--phoenix-vermilion); }
+  .sev-critical .log-msg{ color: var(--phoenix-vermilion); }
 
-        .log-row {
-            margin-bottom: 8px;
-            border-left: 3px solid #1a5a1a;
-            padding-left: 8px;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .severity-info { border-color: var(--terminal-green); color: var(--terminal-green); }
-        .severity-warning { border-color: var(--warning-amber); color: var(--warning-amber); text-shadow: 0 0 3px var(--warning-amber); }
-        .severity-critical { border-color: var(--critical-red); color: var(--critical-red); text-shadow: 0 0 6px var(--critical-red); font-weight: bold; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-5px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+  footer{
+    margin-top:22px; padding-top:14px; border-top:1px solid var(--tortoise-line);
+    font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+</style>
 </head>
 <body>
+<div class="corner-bl"></div>
+<div class="corner-br"></div>
 
 <header>
-    <div class="system-banner">
-███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗  ██╗
-██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝╚██╗██╔╝
-███████╗█████╗  ██╔██╗ ██║   ██║   ██║██╔██╗ ██║█████╗   ╚███╔╝ 
-╚════██║██╔══╝  ██║╚██╗██║   ██║   ██║██║╚██╗██║██╔══╝   ██╔██╗ 
-███████║███████╗██║ ╚████║   ██║   ██║██║ ╚████║███████╗██╔╝ ██╗
-╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ v1.0.0</div>
-    <div>ACTIVE RUNTIME CORE INTERFACE // HOSTED LOCAL ADAPTER</div>
+  <div class="brand">
+    <svg class="seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#1C262B" stroke-width="2"/>
+      <path d="M50 6 L50 94" stroke="#2FA98C" stroke-width="2.2"/>
+      <path d="M6 50 L94 50" stroke="#D9AE55" stroke-width="2.2"/>
+      <path d="M50 6 A44 44 0 0 1 94 50" fill="none" stroke="#2FA98C" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M94 50 A44 44 0 0 1 50 94" fill="none" stroke="#D9AE55" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M50 94 A44 44 0 0 1 6 50" fill="none" stroke="#0B0F12" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M6 50 A44 44 0 0 1 50 6" fill="none" stroke="#E1503E" stroke-width="3.2" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="7" fill="#EDE6D6"/>
+    </svg>
+    <div class="brand-text">
+      <h1>SENTINELX</h1>
+      <p>Perimeter Watch &mdash; Authentication &amp; Intrusion Command</p>
+    </div>
+  </div>
+  <div class="conn-pill">
+    <span class="conn-dot pulse" id="conn-dot"></span>
+    <span id="conn-label">Establishing link&hellip;</span>
+  </div>
 </header>
 
-<div class="metrics-grid">
-    <div class="metric-card">
-        <div class="metric-label">Daemon Pipeline Status</div>
-        <div class="metric-value" id="stat-status" style="color: var(--terminal-green)">CONN...</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Total Log Lines Streamed</div>
-        <div class="metric-value" id="stat-lines">0</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Security Escalations Dispatched</div>
-        <div class="metric-value" id="stat-alerts" style="color: var(--warning-amber)">0</div>
-    </div>
-</div>
+<section class="watch-posts">
+  <div class="post post--tortoise">
+    <span class="direction">North &middot; Xu&aacute;n W&ǔ &middot; Water</span>
+    <span class="glyph">玄</span>
+    <div class="label">Daemon Pipeline</div>
+    <div class="value" id="stat-status">&mdash;</div>
+  </div>
+  <div class="post post--dragon">
+    <span class="direction">East &middot; Q&iacute;ng L&oacute;ng &middot; Wood</span>
+    <span class="glyph">青</span>
+    <div class="label">Log Lines Streamed</div>
+    <div class="value" id="stat-lines">0</div>
+  </div>
+  <div class="post post--tiger">
+    <span class="direction">West &middot; B&aacute;i H&ǔ &middot; Metal</span>
+    <span class="glyph">白</span>
+    <div class="label">Warnings Raised</div>
+    <div class="value" id="stat-warnings">0</div>
+  </div>
+  <div class="post post--phoenix">
+    <span class="direction">South &middot; Zh&ū Qu&egrave; &middot; Fire</span>
+    <span class="glyph">朱</span>
+    <div class="label">Escalations Dispatched</div>
+    <div class="value" id="stat-alerts">0</div>
+  </div>
+</section>
 
-<div class="dashboard-layout">
-    <div class="console-panel">
-        <div class="panel-header">> LIVE MONITOR EVENT SECURITY FEED</div>
-        <div class="feed-container" id="feed-log">
-            <div style="color: #1a5a1a;">[SYS] Initializing local WebSocket link socket connection...</div>
-        </div>
+<section class="console">
+  <div class="console-head">
+    <h2>Live Event Watch</h2>
+    <div class="legend">
+      <span><i style="background:var(--dragon-jade)"></i>Info</span>
+      <span><i style="background:var(--tiger-gold)"></i>Warning</span>
+      <span><i style="background:var(--phoenix-vermilion)"></i>Critical</span>
+      <span><i style="background:var(--tortoise-line)"></i>System</span>
     </div>
-</div>
+  </div>
+  <div class="feed" id="feed-log">
+    <div class="log-row sev-sys">
+      <span class="log-time">&mdash;</span>
+      <span class="log-tag">SYS</span>
+      <span class="log-msg">Opening WebSocket channel to local daemon&hellip;</span>
+    </div>
+  </div>
+</section>
 
+<footer>
+  <span>SentinelX Local Adapter</span>
+  <span id="footer-clock">&mdash;</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
 <script>
-    // Bind socket instance targeting the active server host context
-    const socket = io();
-    const feedLog = document.getElementById("feed-log");
+  const socket = io();
+  const feedLog   = document.getElementById("feed-log");
+  const connDot   = document.getElementById("conn-dot");
+  const connLabel = document.getElementById("conn-label");
+  const clockEl   = document.getElementById("footer-clock");
 
-    // Fetch snapshot metrics via initial REST call on view mounting
-    function refreshStats() {
-        fetch('/api/v1/stats')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("stat-status").innerText = data.status.toUpperCase();
-                document.getElementById("stat-lines").innerText = data.lines_parsed;
-                document.getElementById("stat-alerts").innerText = data.alerts_dispatched;
-            }).catch(err => {
-                document.getElementById("stat-status").innerText = "OFFLINE";
-                document.getElementById("stat-status").style.color = "var(--critical-red)";
-            });
-    }
+  let warningCount = 0; // tracked client-side from the feed; alerts_dispatched covers all severities server-side
 
-    // Connect lifecycle configurations
-    socket.on('connect', () => {
-        const row = document.createElement("div");
-        row.className = "log-row severity-info";
-        row.innerText = `[${new Date().toLocaleTimeString()}] [SYS] Channel established. Telemetry synchronized.`;
-        feedLog.appendChild(row);
-        refreshStats();
-    });
+  function tick(){
+    clockEl.textContent = new Date().toLocaleString();
+  }
+  tick(); setInterval(tick, 1000);
 
-    // Intercept threat push payloads streaming from run.py
-    socket.on('security_alert', (payload) => {
-        const row = document.createElement("div");
-        row.className = `log-row severity-${payload.severity}`;
-        
-        const timestamp = new Date().toLocaleTimeString();
-        row.innerText = `[${timestamp}] [${payload.severity.toUpperCase()}] Source IP: ${payload.ip} -> Attempts: ${payload.count} | Message: ${payload.message}`;
-        
-        feedLog.appendChild(row);
-        feedLog.scrollTop = feedLog.scrollHeight; // Auto-scroll to lowest point
-        
-        // Trigger quick incremental refresh to bump numbers
-        refreshStats();
-    });
+  function appendRow(severity, tag, message){
+    const row = document.createElement("div");
+    row.className = `log-row sev-${severity}`;
+    row.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString()}</span>` +
+                     `<span class="log-tag">${tag}</span>` +
+                     `<span class="log-msg">${message}</span>`;
+    feedLog.appendChild(row);
+    feedLog.scrollTop = feedLog.scrollHeight;
+  }
 
-    // Run baseline stats load loop every 4 seconds
-    setInterval(refreshStats, 4000);
+  function refreshStats(){
+    fetch('/api/v1/stats')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("stat-status").textContent   = (data.status || "unknown").toUpperCase();
+        document.getElementById("stat-lines").textContent    = data.lines_parsed ?? 0;
+        document.getElementById("stat-alerts").textContent   = data.alerts_dispatched ?? 0;
+        document.getElementById("stat-warnings").textContent = data.warnings_raised ?? 0; // <-- UPDATE THIS LINE
+      })
+      .catch(() => {
+        document.getElementById("stat-status").textContent = "OFFLINE";
+      });
+  }
+
+  socket.on('connect', () => {
+    connDot.className = "conn-dot live pulse";
+    connLabel.textContent = "Channel synchronized";
+    appendRow("sys", "SYS", "Channel established. Telemetry synchronized.");
     refreshStats();
+  });
+
+  socket.on('disconnect', () => {
+    connDot.className = "conn-dot down pulse";
+    connLabel.textContent = "Link lost \u2014 retrying";
+    appendRow("critical", "SYS", "Connection to daemon lost.");
+  });
+
+  socket.on('security_alert', (payload) => {
+    const severity = payload.severity || "info";
+    if (severity === "warning") warningCount++;
+    const tag = severity.toUpperCase();
+
+    const hitCount = payload.count || payload.attempts || payload.fail_count || 1;
+  
+    const msg = `Source <b>${payload.ip}</b> &rarr; ${hitCount} attempt(s) &mdash; ${payload.message}`;
+    appendRow(severity, tag, msg);
+    refreshStats();
+});
+
+  setInterval(refreshStats, 4000);
+  refreshStats();
 </script>
 </body>
 </html>
