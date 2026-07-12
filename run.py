@@ -72,6 +72,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 SYSTEM_STATS = {
     "status": "active",
     "lines_parsed": 0,
+    "warnings_raised": 0,
     "alerts_dispatched": 0,
     "target_file": TARGET_LOG_PATH
 }
@@ -98,6 +99,12 @@ def background_daemon_worker(log_path: str, state_path: str) -> None:
             alert_payload = engine.process_event(parsed_data)
             if alert_payload:
                 SYSTEM_STATS["alerts_dispatched"] += 1
+
+                severity_level = str(alert_payload.get('severity', '')).strip().lower()
+
+                if severity_level == 'warning':
+                    SYSTEM_STATS["warnings_raised"] += 1
+
                 logger.warning(f"SECURITY ESCALATION: [{alert_payload['severity']}] {alert_payload['message']}")
                 socketio.emit('security_alert', alert_payload)
                 
@@ -111,7 +118,11 @@ def background_daemon_worker(log_path: str, state_path: str) -> None:
 
 @app.route("/", methods=["GET"])
 def render_dashboard():
+<<<<<<< HEAD
     """Serve the real-time retro security control command dashboard UI."""
+=======
+    """Serve the real-time security control command dashboard UI."""
+>>>>>>> feature/demo-web-interface
     return render_template("index.html")
 
 
@@ -132,7 +143,13 @@ def get_health_status():
 @app.route("/api/v1/stats", methods=["GET"])
 def get_telemetry_metrics():
     """Expose total lines parsed and metric indicators."""
-    return jsonify(SYSTEM_STATS), 200
+    return jsonify({
+        "status": SYSTEM_STATS["status"],
+        "lines_parsed": SYSTEM_STATS["lines_parsed"],
+        "warnings_raised": SYSTEM_STATS.get("warnings_raised", 0),
+        "alerts_dispatched": SYSTEM_STATS["alerts_dispatched"],
+        "target_file": SYSTEM_STATS["target_file"]
+    }), 200
 
 
 if __name__ == "__main__":
@@ -144,6 +161,11 @@ if __name__ == "__main__":
         log_path=TARGET_LOG_PATH,
         state_path=cfg['state_file']
     )
+<<<<<<< HEAD
+=======
+
+    time.sleep(0.5)
+>>>>>>> feature/demo-web-interface
     
     # Securely Drop Privileges right after starting the background file link
     drop_privileges(username=cfg['run_as_user'], group=cfg['run_as_group'])

@@ -23,3 +23,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+#Runtime file
+*sentinelx_state.json
