@@ -18,21 +18,6 @@ the bundled test fixture used in development.
 
 ---
 
-## Technical Documentation
-
-Detailed guides are available in the `docs/` directory:
-
-1. **[Installation Guide](docs/installation.md)**: System prerequisites, environment setup, privileges dropping, and configuring systemd.
-2. **[Configuration Guide](docs/configuration.md)**: Configuration schema explanation (`config.yaml`), defaults, and environment variables.
-3. **[Usage Guide](docs/usage.md)**: Executing the application, simulating traffic using the mock generator, and reading outputs.
-4. **[Troubleshooting Guide](troubleshooting.md)**: Permissions, log rotation recovery, state corruption, and watcher details.
-5. **[Architecture Guide](docs/architecture.md)**: Decoupled design overview, Mermaid sequence flow diagram, and components detail.
-
-Personal Journal `docs/archive_journal` directory:
-QA tests `docs/QA`:
-
----
-
 ## Quick Start
 
 The fastest way to see SentinelX working is to point it at the bundled
@@ -131,13 +116,13 @@ The full documentation set lives under `docs/`:
 
 | Guide | Purpose |
 |---|---|
-| [docs/installation.md](docs/installation.md) | Prerequisites, venv setup, permissions, systemd unit |
-| [docs/configuration.md](docs/configuration.md) | `config.yaml` schema, environment variables, merge order |
-| [docs/usage.md](docs/usage.md) | Running the daemon, the mock-logs flow, reading the dashboard |
-| [docs/architecture.md](docs/architecture.md) | Component layout, data flow, threading model |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | Common runtime errors and their fixes |
-| [docs/QA/](docs/QA) | Test reports and QA findings |
-| [docs/archive_journal/](docs/archive_journal) | Development journal entries |
+| [Installation Guide](docs/installation.md) | Prerequisites, venv setup, permissions, systemd unit |
+| [Configuration Guide](docs/configuration.md) | `config.yaml` schema, environment variables, merge order |
+| [Usage Guide](docs/usage.md) | Running the daemon, the mock-logs flow, reading the dashboard |
+| [Architecture Guide](docs/architecture.md) | Component layout, data flow, threading model |
+| [Troubleshooting Guide](docs/troubleshooting.md) | Common runtime errors and their fixes |
+| [QA-Tests](docs/QA) | Test reports and QA findings |
+| [Archive_Journal](docs/archive_journal) | Development journal entries |
 
 ---
 
