@@ -182,6 +182,30 @@ format, you'll need to extend `core/parser.py` with a matching regex.
 
 ---
 
+## Shell scripts
+
+SentinelX ships with `manage.sh` and an equivalent `Makefile`. Both are thin
+wrappers that invoke `venv/bin/python` directly, so you don't need to activate
+the virtual environment yourself. Anything you set with `export` in the parent
+shell (`SENTINELX_LOG_PATH`, `SENTINELX_STATE_FILE`, `SENTINELX_RUN_AS_USER`,
+etc.) is inherited by the wrapped process. Pass extra arguments after the
+command name — both forward them to the underlying Python entry point.
+
+| Command | Effect |
+|---|---|
+| `./manage.sh run` / `make run` | Start the daemon and Flask web server (`run.py`) |
+| `./manage.sh test` / `make test` | Run the full pytest suite (`core/tests/`) |
+| `./manage.sh mock-logs` / `make mock-logs` | Start the mock sshd traffic generator (`generate_mock_logs.py`) |
+| `./manage.sh lint` / `make lint` | Byte-compile all source files to verify syntax |
+| `./manage.sh clean` / `make clean` | Remove `.pytest_cache`, `__pycache__`, and the state file |
+| `./manage.sh help` | Print the `manage.sh` command list |
+
+Use `manage.sh` for the day-to-day workflow — it accepts extra args (e.g.
+`./manage.sh run --port 5001`) and is the documented entry point. The
+`Makefile` exists as a convenience for users who prefer `make` targets.
+
+---
+
 ## Documentation
 
 The full documentation set lives under `docs/`:
