@@ -188,13 +188,13 @@ The full documentation set lives under `docs/`:
 
 | Guide | Purpose |
 |---|---|
-| [docs/installation.md](docs/installation.md) | Prerequisites, venv setup, permissions, systemd unit |
-| [docs/configuration.md](docs/configuration.md) | `config.yaml` schema, environment variables, merge order |
-| [docs/usage.md](docs/usage.md) | Running the daemon, the mock-logs flow, reading the dashboard |
-| [docs/architecture.md](docs/architecture.md) | Component layout, data flow, threading model |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | Common runtime errors and their fixes |
-| [docs/QA/](docs/QA) | Test reports and QA findings |
-| [docs/archive_journal/](docs/archive_journal) | Development journal entries |
+| [Installation Guide](docs/installation.md) | Prerequisites, venv setup, permissions, systemd unit |
+| [Configuration Guide](docs/configuration.md) | `config.yaml` schema, environment variables, merge order |
+| [Usage Guide](docs/usage.md) | Running the daemon, the mock-logs flow, reading the dashboard |
+| [Architecture Guide](docs/architecture.md) | Component layout, data flow, threading model |
+| [Troubleshooting Guide](docs/troubleshooting.md) | Common runtime errors and their fixes |
+| [QA-Tests](docs/QA) | Test reports and QA findings |
+| [Archive_Journal](docs/archive_journal) | Development journal entries |
 
 ---
 
