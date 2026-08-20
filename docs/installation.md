@@ -8,15 +8,15 @@ the daemon + dashboard running.
 ## 1. Prerequisites
 
 | Requirement | Notes |
-|---|---|
+|-------------|-------|
 | OS | Linux (tested on Fedora, RHEL, CentOS, Debian, Ubuntu) |
-| Python | 3.9 or higher (the dev environment used 3.14.5) |
-| `pip` | Bundled with the Python venv module |
-| Network | Outbound HTTPS for `pip install` (no runtime network dependency) |
+| Python | 3.10 or higher (the dev environment used 3.14.7) |
+| uv | UV package manager (https://github.com/astral-sh/uv) |
+| Network | Outbound HTTPS for `uv sync` (no runtime network dependency) |
 | Log read access | Required only when tailing **real** auth logs (`/var/log/auth.log`, `/var/log/secure`); not required for the mock-fixture demo |
 
 The runtime stack is **Flask 3 + Flask-SocketIO 5 + eventlet 0.41 + greenlet
-3**, plus `PyYAML` and `pytest`. `requirements.txt` pins exact versions.
+3**, plus `PyYAML` and `pytest`. `uv lock` provides exact versions.
 
 ---
 
@@ -33,22 +33,22 @@ demo.
 
 ---
 
-## 3. Create a virtual environment
+## 3. Create virtual environment and install dependencies
 
-`manage.sh` and `Makefile` both look for `venv/bin/python` and
-`venv/bin/pytest`, so the virtual environment must live at
-`./venv/` inside the project root.
+`manage.sh` and `Makefile` both look for `.venv/bin/python` and
+`.venv/bin/pytest`, so the virtual environment must live at
+`./.venv/` inside the project root.
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+uv venv
+uv sync
+source .venv/bin/activate
 ```
 
 Verify the install:
 
 ```bash
-./manage.sh test      # 16 tests, all passing
+./manage.sh test      # 16/16 unit + integration + stress tests
 ./manage.sh lint      # syntax check
 ```
 
@@ -129,7 +129,7 @@ Type=simple
 User=root
 WorkingDirectory=/opt/sentinelx
 Environment=SENTINELX_LOG_PATH=/var/log/auth.log
-ExecStart=/opt/sentinelx/venv/bin/python /opt/sentinelx/run.py
+ExecStart=/opt/sentinelx/.venv/bin/python /opt/sentinelx/run.py
 Restart=always
 RestartSec=5
 
@@ -157,8 +157,8 @@ the dashboard currently exposes no auth.
 ```bash
 cd /opt/sentinelx
 git pull
-source venv/bin/activate
-pip install -r requirements.txt
+uv sync
+source .venv/bin/activate
 ./manage.sh test
 sudo systemctl restart sentinelx.service
 ```

@@ -50,18 +50,19 @@ try:
     # Register signal handlers - simple immediate exit for clean termination
     def signal_handler(signum, frame):
         logger.info("Termination signal captured. Exiting cleanly...")
+        logging.shutdown()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
 except KeyboardInterrupt:
-    # Handle SIGINT that occurs during imports
     import logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("sentinelx.runtime")
     logger.info("Termination signal captured during initialization. Exiting cleanly...")
-    sys.exit(0)
+    logging.shutdown()
+    os._exit(0)
 
 # 1. Ingest layered configuration parameters
 cfg = load_config()
@@ -190,4 +191,5 @@ if __name__ == "__main__":
     finally:
         shutdown_event.set()
         logger.info("SentinelX Daemon stopped cleanly.")
+        logging.shutdown()
         sys.exit(0)
